@@ -11,15 +11,15 @@ The algorithm involves the use of two stacks:
 
 The input is read from left to right. One proceeds in the following way:
 
-* Step 1 *: push the symbol of the end of input, $, to operators stack.
+*Step 1*: push the symbol of the end of input, $, to operators stack.
 
-* Step 2 *: reads the first token from the input string. If it is a value (operand) it's pushed on values stack. If it's an operator, we proceed as follows:
+*Step 2*: reads the first token from the input string. If it is a value (operand) it's pushed on values stack. If it's an operator, we proceed as follows:
 
 - 2.a: If the operator at the top of operators stack have higher precedence than or equal, you perform a reduce.
 - 2.b: If the operator at the top of operators stack have lower precedence, you perform a shift.
 - 3.c: if the two operators are the same, performing a reduce if the associativity is left; performing a shift if the associativity is right.
 
-* Step 3 *: When the entire input string has been read, operators stack should only contain one item: $; values stack ​​should contain only one value, the result of the operation. Otherwise, here is a syntax error.
+*Step 3*: When the entire input string has been read, operators stack should only contain one item: $; values stack ​​should contain only one value, the result of the operation. Otherwise, here is a syntax error.
 
 The shift operation is to push on operators stack, the operator just read from the input string.
 
