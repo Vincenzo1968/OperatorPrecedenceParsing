@@ -13,7 +13,7 @@ Si voglia valutare la seguente espressione:
 
     21 - 8 - 2 * 3 + (6 / 3) + 2^2^3
 
-<table>
+<table border="0">
     <tr><td>La situazione di partenza è la seguente($ indica le fine dell'input):</td></tr>
     <tr><td><img src="Images/opp01.jpg"></td></tr>
     <tr><td>Il primo token letto dalla stringa di input è il valore 21; lo si piazza in cima allo stack dei valori:</td></tr>
