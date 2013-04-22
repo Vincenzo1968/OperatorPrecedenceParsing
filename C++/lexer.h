@@ -20,40 +20,58 @@
    along with ParseExprLib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef LEXER_H
+#define LEXER_H
 
-#include <stdint.h>
+#include <cstring>
 
-#include "lexer.h"
-
-#define MAXSTACK 1024
-
-/* actions */
-typedef enum {
-    S,  /* shift */
-    R,  /* reduce */
-    A,  /* accept */
-    E1, /* error: missing right parenthesis */
-    E2, /* error: missing operator */
-    E3  /* error: unbalanced parenthesis */    
-} actionsEnum;
-
-typedef struct tagParserData
+typedef enum tagTokenType
 {
-	char    m_strExpr[255];
-	Token   m_Token;
-	int     m_top;              
-	double  m_stack[MAXSTACK];
-	int     m_topOpr;
-	int8_t  m_stackOpr[MAXSTACK];	
-	double  m_value;	
-} ParserData;
+	T_PLUS = 0,
+	T_MINUS,
+	T_MULT,
+	T_DIV,	
+	T_UMINUS,	
+	T_EXP,		
+	T_OPAREN,
+	T_CPAREN,	
+	T_EOL,	
+	T_NUMBER,	
+	T_UPLUS,
+	T_UNKNOWN	
+}TokenTypeEnum;
 
+typedef struct tagToken
+{
+	TokenTypeEnum Type;
+	char str[55];
+	double Value;
+}Token;
 
-int shift(ParserData *pd);
-int reduce(ParserData *pd);
+class CLexer
+{
+public:
+	CLexer()
+	{
+		m_strExpr[0] = '\0';
+		m_nNextPos = 0;
+		m_PreviousTokenType = T_EOL;
+	}
 
-int Parse(const char *strExpr, double *dblRet);
+	void SetExpr(const char *strExpr)
+	{
+		strcpy(m_strExpr, strExpr);
+	}
 
-#endif // PARSER_H
+	TokenTypeEnum GetNextToken();
+
+	Token m_currToken;
+
+private:
+	char m_strExpr[256];
+	int m_nNextPos;
+	TokenTypeEnum m_PreviousTokenType;
+};
+
+#endif // LEXER_H
+

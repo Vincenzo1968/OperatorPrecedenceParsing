@@ -89,7 +89,7 @@ int reduce(ParserData *pd)
 			//printf("POP %lf\n", pd->m_stack[pd->m_top]);		
 			right = pd->m_stack[(pd->m_top)--];
 			//printf("POP %lf\n", pd->m_stack[pd->m_top]);
-			pd->m_stack[pd->m_top] += right;
+			pd->m_stack[pd->m_top] = pd->m_stack[pd->m_top] + right;
 			//printf("PUSH %lf\n", pd->m_stack[pd->m_top]);
 			break;
 		case T_MINUS:
@@ -97,7 +97,7 @@ int reduce(ParserData *pd)
 			//printf("POP %lf\n", pd->m_stack[pd->m_top]);				
 			right = pd->m_stack[(pd->m_top)--];
 			//printf("POP %lf\n", pd->m_stack[pd->m_top]);			
-			pd->m_stack[pd->m_top] -= right;		
+			pd->m_stack[pd->m_top] = pd->m_stack[pd->m_top] - right;		
 			//printf("PUSH %lf\n", pd->m_stack[pd->m_top]);
 			break;
 		case T_MULT:
@@ -105,7 +105,7 @@ int reduce(ParserData *pd)
 			//printf("POP %lf\n", pd->m_stack[pd->m_top]);						
 			right = pd->m_stack[(pd->m_top)--];
 			//printf("POP %lf\n", pd->m_stack[pd->m_top]);						
-			pd->m_stack[pd->m_top] *= right;		
+			pd->m_stack[pd->m_top] = pd->m_stack[pd->m_top] * right;		
 			//printf("PUSH %lf\n", pd->m_stack[pd->m_top]);			
 			break;
 		case T_DIV:
@@ -118,7 +118,7 @@ int reduce(ParserData *pd)
 				return 0;
 			}
 			//printf("POP %lf\n", pd->m_stack[pd->m_top]);			
-			pd->m_stack[pd->m_top] /= right;		
+			pd->m_stack[pd->m_top] = pd->m_stack[pd->m_top] / right;		
 			//printf("PUSH %lf\n", pd->m_stack[pd->m_top]);
 			break;
 		case T_UMINUS:
@@ -149,21 +149,22 @@ int Parse(const char *strExpr, double *dblRet)
 {
 	int ret = 1;	
 	ParserData md;
-				
-	int8_t parseTable[7][7] =
+					
+	int8_t parseTable[9][9] =
 	{
-		/* stack   -------- input ----------- */
-		/*         +   -   *   /   UM  ^   $  */
-		/*         --  --  --  --  --  --  -- */
-		/* +  */ { R,  R,  S,  S,  S,  S,  R },
-		/* -  */ { R,  R,  S,  S,  S,  S,  R },
-		/* *  */ { R,  R,  R,  R,  S,  S,  R },
-		/* /  */ { R,  R,  R,  R,  S,  S,  R },
-		/* UM */ { R,  R,  R,  R,  S,  S,  R },
-		/* ^  */ { R,  R,  R,  R,  R,  S,  R },
-		/* $  */ { S,  S,  S,  S,  S,  S,  A }
-	};
-	
+		/* stack   ----------- input ---------------- */
+		/*         +   -   *   /   UM  ^   (   )   $  */
+		/*         --  --  --  --  --  --  --  --  -- */
+		/* +  */ { R,  R,  S,  S,  S,  S,  S,  R,  R },
+		/* -  */ { R,  R,  S,  S,  S,  S,  S,  R,  R },
+		/* *  */ { R,  R,  R,  R,  S,  S,  S,  R,  R },
+		/* /  */ { R,  R,  R,  R,  S,  S,  S,  R,  R },
+		/* UM */ { R,  R,  R,  R,  S,  S,  S,  R,  R },
+		/* ^  */ { R,  R,  R,  R,  R,  S,  S,  R,  R },
+		/* (  */ { S,  S,  S,  S,  S,  S,  S,  S,  E1},
+		/* )  */ { R,  R,  R,  R,  R,  R,  E2, R,  R },
+		/* $  */ { S,  S,  S,  S,  S,  S,  S,  E3, A }
+	};		
 	
 	*dblRet = 0;
 
@@ -237,6 +238,15 @@ int Parse(const char *strExpr, double *dblRet)
 						*dblRet = md.m_value;
 						//printf("ACCEPT: %lf\n", *dblRet);
 						return 1;
+					case E1:
+						printf("Error 3: missing right parenthesis\n");
+						return 0;
+					case E2:
+						printf("Error 4: missing operator\n");
+						return 0;					
+					case E3:
+						printf("Error 5: unbalanced parenthesis\n");
+						return 0;						
 				}
 				break;
 		}		

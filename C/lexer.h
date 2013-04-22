@@ -24,19 +24,20 @@
 #define LEXER_H
 
 typedef enum tagTokenType
-{
+{	
 	T_PLUS = 0,
 	T_MINUS,
 	T_MULT,
 	T_DIV,	
 	T_UMINUS,	
 	T_EXP,		
-	T_EOL,	
 	T_OPAREN,
 	T_CPAREN,
+	T_EOL,		
 	T_NUMBER,	
 	T_UPLUS,
 	T_UNKNOWN	
+	
 }TokenTypeEnum;
 
 typedef struct tagToken

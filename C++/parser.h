@@ -23,11 +23,10 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include <stdint.h>
-
-#include "lexer.h"
-
 #define MAXSTACK 1024
+
+#include <stdint.h>
+#include "lexer.h"
 
 /* actions */
 typedef enum {
@@ -36,24 +35,38 @@ typedef enum {
     A,  /* accept */
     E1, /* error: missing right parenthesis */
     E2, /* error: missing operator */
-    E3  /* error: unbalanced parenthesis */    
+    E3  /* error: unbalanced parenthesis */        
 } actionsEnum;
 
-typedef struct tagParserData
+class CParser
 {
-	char    m_strExpr[255];
-	Token   m_Token;
-	int     m_top;              
-	double  m_stack[MAXSTACK];
+public:
+	CParser()
+	{
+		//m_strExpr[0] = '\0';
+		m_top = -1;
+		m_value = 0;
+	}
+
+	bool Parse(const char *strExpr);
+	double GetValue()
+	{
+		return m_value;
+	}
+
+private:
+	bool shift();
+	bool reduce();
+
+	CLexer m_Lexer;
+	//char m_strExpr[256];
+	int m_top;              
+	double m_stack[MAXSTACK];
 	int     m_topOpr;
-	int8_t  m_stackOpr[MAXSTACK];	
-	double  m_value;	
-} ParserData;
+	int8_t  m_stackOpr[MAXSTACK];		
+	double m_value;
+};
 
-
-int shift(ParserData *pd);
-int reduce(ParserData *pd);
-
-int Parse(const char *strExpr, double *dblRet);
 
 #endif // PARSER_H
+
