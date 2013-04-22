@@ -89,7 +89,7 @@ int reduce(ParserData *pd)
 			//printf("POP %lf\n", pd->m_stack[pd->m_top]);		
 			right = pd->m_stack[(pd->m_top)--];
 			//printf("POP %lf\n", pd->m_stack[pd->m_top]);
-			pd->m_stack[pd->m_top] = pd->m_stack[pd->m_top] + right;
+			pd->m_stack[pd->m_top] += right;
 			//printf("PUSH %lf\n", pd->m_stack[pd->m_top]);
 			break;
 		case T_MINUS:
@@ -97,7 +97,7 @@ int reduce(ParserData *pd)
 			//printf("POP %lf\n", pd->m_stack[pd->m_top]);				
 			right = pd->m_stack[(pd->m_top)--];
 			//printf("POP %lf\n", pd->m_stack[pd->m_top]);			
-			pd->m_stack[pd->m_top] = pd->m_stack[pd->m_top] - right;		
+			pd->m_stack[pd->m_top] -= right;		
 			//printf("PUSH %lf\n", pd->m_stack[pd->m_top]);
 			break;
 		case T_MULT:
@@ -105,7 +105,7 @@ int reduce(ParserData *pd)
 			//printf("POP %lf\n", pd->m_stack[pd->m_top]);						
 			right = pd->m_stack[(pd->m_top)--];
 			//printf("POP %lf\n", pd->m_stack[pd->m_top]);						
-			pd->m_stack[pd->m_top] = pd->m_stack[pd->m_top] * right;		
+			pd->m_stack[pd->m_top] *= right;		
 			//printf("PUSH %lf\n", pd->m_stack[pd->m_top]);			
 			break;
 		case T_DIV:
@@ -118,7 +118,7 @@ int reduce(ParserData *pd)
 				return 0;
 			}
 			//printf("POP %lf\n", pd->m_stack[pd->m_top]);			
-			pd->m_stack[pd->m_top] = pd->m_stack[pd->m_top] / right;		
+			pd->m_stack[pd->m_top] /= right;		
 			//printf("PUSH %lf\n", pd->m_stack[pd->m_top]);
 			break;
 		case T_UMINUS:
