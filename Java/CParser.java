@@ -48,7 +48,7 @@ public class CParser
 	{
 		if ( m_topOpr >= m_MAXSTACK )
 		{
-			System.out.println("Error 6: stack operator overflow.");
+			System.out.println("Error 4: stack operator overflow.");
 			return false;
 		}
 		
@@ -65,22 +65,22 @@ public class CParser
 	
 		if ( m_topOpr < 1 )
 		{
-			System.out.println("Error 7: missing operator or parenthesis.");
+			System.out.println("Error 5: missing operator or parenthesis.");
 			return false;
 		}		
 	
-		if ( m_top < 1 )
+		if ( m_top < 1 && m_stackOpr[m_topOpr] != CLexer.TokenTypeEnum.T_OPAREN && m_stackOpr[m_topOpr] != CLexer.TokenTypeEnum.T_CPAREN )
 		{
 			if ( m_stackOpr[m_topOpr] != CLexer.TokenTypeEnum.T_UMINUS )
 			{
-				System.out.println("Error 8: missing operand.");
+				System.out.println("Error 6: missing operand.");
 				return false;
 			}
 			else
 			{
 				if ( m_top < 0 )
 				{
-					System.out.println("Error 9: missing operand.");
+					System.out.println("Error 7: missing operand.");
 					return false;						
 				}
 			}
@@ -104,7 +104,7 @@ public class CParser
 				right = m_stack[m_top--];
 				if ( right == 0 )
 				{
-					System.out.println("Error 10: division by 0.");
+					System.out.println("Error 8: division by 0.");
 					return false;
 				}
 				m_stack[m_top] /= right;
@@ -116,8 +116,14 @@ public class CParser
 				right = m_stack[m_top--];
 				m_stack[m_top] = Math.pow(m_stack[m_top], right);
 				break;
+			case T_OPAREN:
+				if ( m_Lexer.m_currToken.Type == CLexer.TokenTypeEnum.T_CPAREN )
+					m_Lexer.GetNextToken();					
+				break;
+			case T_CPAREN:
+				break;				
 			default:
-				System.out.println("Error 11: invalid syntax");
+				System.out.println("Error 9: invalid syntax");
 				return false;
 		}
 	
@@ -140,15 +146,15 @@ public class CParser
 		int[][] parseTable =
 		{
 			/* stack   -------- input ----------- */
-			/*         +   -   *   /   UM  ^   $  */
-			/*         --  --  --  --  --  --  -- */
+			/*         +   -   *   /   UM  ^   (   )   $  */
+			/*         --  --  --  --  --  --  --  --  -- */
 			/* +  */ { R,  R,  S,  S,  S,  S,  S,  R,  R },
 			/* -  */ { R,  R,  S,  S,  S,  S,  S,  R,  R },
 			/* *  */ { R,  R,  R,  R,  S,  S,  S,  R,  R },
 			/* /  */ { R,  R,  R,  R,  S,  S,  S,  R,  R },
 			/* UM */ { R,  R,  R,  R,  S,  S,  S,  R,  R },
 			/* ^  */ { R,  R,  R,  R,  R,  S,  S,  R,  R },
-			/* (  */ { S,  S,  S,  S,  S,  S,  S,  S,  E1},
+			/* (  */ { S,  S,  S,  S,  S,  S,  S,  R,  E1},
 			/* )  */ { R,  R,  R,  R,  R,  R,  E2, R,  R },
 			/* $  */ { S,  S,  S,  S,  S,  S,  S,  E3, A }			
 		};			
@@ -183,19 +189,6 @@ public class CParser
 				case T_UPLUS:
 					m_Lexer.GetNextToken();				
 					break;
-				case T_OPAREN:
-					if ( !shift() )
-						return false;
-					break;
-				case T_CPAREN:
-					while ( m_stackOpr[m_topOpr] != CLexer.TokenTypeEnum.T_OPAREN )
-					{
-						if ( !reduce() )
-							return false;
-					}
-					--m_topOpr;
-					m_Lexer.GetNextToken();					
-					break;
 				default:
 					switch ( parseTable[m_stackOpr[m_topOpr].ordinal()][m_Lexer.m_currToken.Type.ordinal()] )
 					{
@@ -210,24 +203,24 @@ public class CParser
 						case A:
 							if ( m_top != 0 )
 							{
-								System.out.println("Error 1: missing operator.\n");
+								System.out.println("Error 10: missing operator.\n");
 								return false;
 							}
 							if ( m_topOpr != 0 )
 							{
-								System.out.println("Error 2: missing operand.\n");
+								System.out.println("Error 11: missing operand.\n");
 								return false;
 							}						
 							m_value = m_stack[m_top--];
 							return true;
 						case E1:
-							System.out.println("Error 3: missing right parenthesis");
+							System.out.println("Error 1: missing right parenthesis");
 							return false;
 						case E2:
-							System.out.println("Error 4: missing operator");
+							System.out.println("Error 2: missing operator");
 							return false;					
 						case E3:
-							System.out.println("Error 5: unbalanced parenthesis");
+							System.out.println("Error 3: unbalanced parenthesis");
 							return false;
 					}
 					break;

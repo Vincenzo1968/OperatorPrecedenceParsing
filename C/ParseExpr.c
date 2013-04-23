@@ -44,7 +44,7 @@ int main()
 			break;
 		
 		if ( Parse(strExpr, &dblRes) )
-			printf("\nThe result is: %lf\n\n", dblRes);
+			printf("\nThe result is: %g\n\n", dblRes);
 	}
 
 	return 0;

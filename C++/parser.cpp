@@ -43,7 +43,7 @@ bool CParser::shift()
 {
 	if ( m_topOpr >= MAXSTACK )
 	{
-		cout << "Error 6: stack operator overflow.\n";
+		cout << "Error 4: stack operator overflow.\n";
 		return false;
 	}
 		
@@ -57,10 +57,10 @@ bool CParser::shift()
 bool CParser::reduce()
 {
 	double right;
-	
-	if ( m_topOpr < 1 )
+		
+	if ( m_topOpr < 1 && m_stackOpr[m_topOpr] != T_OPAREN && m_stackOpr[m_topOpr] != T_CPAREN )
 	{
-		cout << "Error 7: missing operator or parenthesis.\n";
+		cout << "Error 5: missing operator or parenthesis.\n";
 		return false;
 	}		
 	
@@ -68,14 +68,14 @@ bool CParser::reduce()
 	{
 		if ( m_stackOpr[m_topOpr] != T_UMINUS )
 		{
-			cout << "Error 8: missing operand.\n";
+			cout << "Error 6: missing operand.\n";
 			return false;
 		}
 		else
 		{
 			if ( m_top < 0 )
 			{
-				cout << "Error 9: missing operand.\n";
+				cout << "Error 7: missing operand.\n";
 				return false;
 			}
 		}
@@ -99,7 +99,7 @@ bool CParser::reduce()
 			right = m_stack[m_top--];
 			if ( right == 0 )
 			{
-				cout << "Error 10: division by 0.\n";
+				cout << "Error 8: division by 0.\n";
 				return false;
 			}
 			m_stack[m_top] /= right;
@@ -111,8 +111,14 @@ bool CParser::reduce()
 			right = m_stack[m_top--];
 			m_stack[m_top] = pow(m_stack[m_top], right);
 			break;
+		case T_OPAREN:
+			if ( m_Lexer.m_currToken.Type == T_CPAREN )
+				m_Lexer.GetNextToken();
+			break;
+		case T_CPAREN:
+			break;			
 		default:
-			cout << "Error 11: " << m_Lexer.m_currToken.str << " " << m_stackOpr[m_topOpr] << endl;
+			cout << "Error 9: " << m_Lexer.m_currToken.str << " " << m_stackOpr[m_topOpr] << endl;
 			return false;
 	}
 	
@@ -127,15 +133,15 @@ bool CParser::Parse(const char *strExpr)
 	int8_t parseTable[9][9] =
 	{
 		/* stack   -------- input ----------- */
-		/*         +   -   *   /   UM  ^   $  */
-		/*         --  --  --  --  --  --  -- */
+		/*         +   -   *   /   UM  ^   (   )   $  */
+		/*         --  --  --  --  --  --  --  --  -- */
 		/* +  */ { R,  R,  S,  S,  S,  S,  S,  R,  R },
 		/* -  */ { R,  R,  S,  S,  S,  S,  S,  R,  R },
 		/* *  */ { R,  R,  R,  R,  S,  S,  S,  R,  R },
 		/* /  */ { R,  R,  R,  R,  S,  S,  S,  R,  R },
 		/* UM */ { R,  R,  R,  R,  S,  S,  S,  R,  R },
 		/* ^  */ { R,  R,  R,  R,  R,  S,  S,  R,  R },
-		/* (  */ { S,  S,  S,  S,  S,  S,  S,  S,  E1},
+		/* (  */ { S,  S,  S,  S,  S,  S,  S,  R,  E1},
 		/* )  */ { R,  R,  R,  R,  R,  R,  E2, R,  R },
 		/* $  */ { S,  S,  S,  S,  S,  S,  S,  E3, A }		
 	};
@@ -148,7 +154,6 @@ bool CParser::Parse(const char *strExpr)
 	
 	m_topOpr = 0;
 	m_stackOpr[0] = T_EOL;
-	cout << "SHIFT $" << endl;
 
 	m_Lexer.GetNextToken();
 	
@@ -171,19 +176,6 @@ bool CParser::Parse(const char *strExpr)
 			case T_UPLUS:
 				m_Lexer.GetNextToken();
 				break;
-			case T_OPAREN:
-				if ( !shift() )
-					return false;
-				break;
-			case T_CPAREN:
-				while ( m_stackOpr[m_topOpr] != T_OPAREN )
-				{
-					if ( !reduce() )
-						return false;
-				}
-				--m_topOpr;
-				m_Lexer.GetNextToken();
-				break;
 			default:
 				switch ( parseTable[m_stackOpr[m_topOpr]][m_Lexer.m_currToken.Type] )
 				{
@@ -198,24 +190,24 @@ bool CParser::Parse(const char *strExpr)
 					case A:
 						if ( m_top != 0 )
 						{
-							cout << "Error 1: missing operator.\n";
+							cout << "Error 10: missing operator.\n";
 							return false;
 						}
 						if ( m_topOpr != 0 )
 						{
-							cout << "Error 2: missing operand.\n";
+							cout << "Error 11: missing operand.\n";
 							return false;
 						}						
 						m_value = m_stack[m_top--];
 						return true;
 					case E1:
-						cout << "Error 3: missing right parenthesis\n";
+						cout << "Error 1: missing right parenthesis\n";
 						return false;
 					case E2:
-						cout << "Error 4: missing operator\n";
+						cout << "Error 2: missing operator\n";
 						return false;					
 					case E3:
-						cout << "Error 5: unbalanced parenthesis\n";
+						cout << "Error 3: unbalanced parenthesis\n";
 						return false;
 				}
 				break;

@@ -57,7 +57,7 @@ namespace ExprCS
 		{
 			if ( m_topOpr >= MAXSTACK )
 			{
-				Console.WriteLine("Error 6: stack operator overflow.");
+				Console.WriteLine("Error 4: stack operator overflow.");
 				return false;
 			}
 		
@@ -74,22 +74,22 @@ namespace ExprCS
 	
 			if ( m_topOpr < 1 )
 			{
-				Console.WriteLine("Error 7: missing operator or parenthesis.");
+				Console.WriteLine("Error 5: missing operator or parenthesis.");
 				return false;
 			}		
-	
-			if ( m_top < 1 )
+		
+			if ( m_top < 1 && m_stackOpr[m_topOpr] != (int)TokenType.T_OPAREN && m_stackOpr[m_topOpr] != (int)TokenType.T_CPAREN )
 			{
 				if ( m_stackOpr[m_topOpr] != (int)TokenType.T_UMINUS )
 				{
-					Console.WriteLine("Error 8: missing operand.");
+					Console.WriteLine("Error 6: missing operand.");
 					return false;
 				}
 				else
 				{
 					if ( m_top < 0 )
 					{
-						Console.WriteLine("Error 9: missing operand.");
+						Console.WriteLine("Error 7: missing operand.");
 						return false;
 					}
 				}
@@ -113,7 +113,7 @@ namespace ExprCS
 					right = m_stack[m_top--];
 					if ( right == 0 )
 					{
-						Console.WriteLine("Error 10: division by 0");
+						Console.WriteLine("Error 8: division by 0");
 						return false;
 					}
 					m_stack[m_top] /= right;
@@ -124,9 +124,15 @@ namespace ExprCS
 				case (int)TokenType.T_EXP:
 					right = m_stack[m_top--];
 					m_stack[m_top] = Math.Pow(m_stack[m_top], right);
-					break;
+					break;					
+				case (int)TokenType.T_OPAREN:
+					if ( m_Lexer.m_currToken.Type == TokenType.T_CPAREN )
+						m_Lexer.GetNextToken();
+					break;			
+				case (int)TokenType.T_CPAREN:
+					break;											
 				default:
-					Console.WriteLine("Error 11: {0} {1}", m_Lexer.m_currToken.str, m_stackOpr[m_topOpr]);
+					Console.WriteLine("Error 9: {0} {1}", m_Lexer.m_currToken.str, m_stackOpr[m_topOpr]);
 					return false;
 			}
 	
@@ -156,7 +162,7 @@ namespace ExprCS
 				/* /  */ { R,  R,  R,  R,  S,  S,  S,  R,  R },
 				/* UM */ { R,  R,  R,  R,  S,  S,  S,  R,  R },
 				/* ^  */ { R,  R,  R,  R,  R,  S,  S,  R,  R },
-				/* (  */ { S,  S,  S,  S,  S,  S,  S,  S,  E1},
+				/* (  */ { S,  S,  S,  S,  S,  S,  S,  R,  E1},
 				/* )  */ { R,  R,  R,  R,  R,  R,  E2, R,  R },
 				/* $  */ { S,  S,  S,  S,  S,  S,  S,  E3, A }												
 			};            
@@ -191,19 +197,6 @@ namespace ExprCS
 					case TokenType.T_UPLUS:
 						m_Lexer.GetNextToken();
 						break;
-					case TokenType.T_OPAREN:
-						if ( !shift() )
-							return false;
-						break;
-					case TokenType.T_CPAREN:
-						while ( m_stackOpr[m_topOpr] != (int)TokenType.T_OPAREN )
-						{
-							if ( !reduce() )
-								return false;
-						}
-						--m_topOpr;
-						m_Lexer.GetNextToken();
-						break;
 					default:
 						switch ( parseTable[m_stackOpr[m_topOpr], (int)m_Lexer.m_currToken.Type] )
 						{
@@ -218,24 +211,24 @@ namespace ExprCS
 							case A:
 								if ( m_top != 0 )
 								{
-									Console.WriteLine("Error 1: missing operator.");
+									Console.WriteLine("Error 10: missing operator.");
 									return false;
 								}
 								if ( m_topOpr != 0 )
 								{
-									Console.WriteLine("Error 2: missing operand.");
+									Console.WriteLine("Error 11: missing operand.");
 									return false;
 								}						
 								m_value = m_stack[m_top--];
 								return true;
 							case E1:
-								Console.WriteLine("Error 3: missing right parenthesis");
+								Console.WriteLine("Error 1: missing right parenthesis");
 								return false;
 							case E2:
-								Console.WriteLine("Error 4: missing operator");
+								Console.WriteLine("Error 2: missing operator");
 								return false;					
 							case E3:
-								Console.WriteLine("Error 5: unbalanced parenthesis");
+								Console.WriteLine("Error 3: unbalanced parenthesis");
 								return false;														
 						}
 						break;
