@@ -53,4 +53,4 @@ typedef struct tagToken
 void initToken(Token *tok);
 TokenTypeEnum GetNextToken(const char *str, Token *token);
 
-#endif // LEXER_H
+#endif /* LEXER_H */

@@ -26,7 +26,7 @@
 #include <math.h>
 #include <stdint.h>
 
-// gcc -Wall -W -O3 -funroll-loops -std=c99 ParseExpr.c parser.c lexer.c -lm -o expr
+/* gcc -Wall -W -O3 -funroll-loops -std=c99 ParseExpr.c parser.c lexer.c -lm -o expr */
 
 #include "parser.h"
 
@@ -48,7 +48,7 @@ int shift(ParserData *pd)
 	}
 		
 	pd->m_stackOpr[++(pd->m_topOpr)] = pd->m_Token.Type;
-	// printf("SHIFT %s\n", pd->m_Token.str);
+	/* printf("SHIFT %s\n", pd->m_Token.str); */
 	
 	GetNextToken(pd->m_strExpr, &(pd->m_Token));
 	
@@ -85,66 +85,78 @@ int reduce(ParserData *pd)
 	switch ( pd->m_stackOpr[pd->m_topOpr] )
 	{
 		case T_PLUS:			
-			//printf("REDUCE +\n");
-			//printf("POP %g\n", pd->m_stack[pd->m_top]);		
+			/*
+			printf("REDUCE +\n");
+			printf("POP %g\n", pd->m_stack[pd->m_top]);
+			*/		
 			right = pd->m_stack[(pd->m_top)--];
-			//printf("POP %g\n", pd->m_stack[pd->m_top]);
+			/* printf("POP %g\n", pd->m_stack[pd->m_top]); */
 			pd->m_stack[pd->m_top] = pd->m_stack[pd->m_top] + right;
-			//printf("PUSH %g\n", pd->m_stack[pd->m_top]);
+			/* printf("PUSH %g\n", pd->m_stack[pd->m_top]); */
 			break;
 		case T_MINUS:
-			//printf("REDUCE -\n");		
-			//printf("POP %g\n", pd->m_stack[pd->m_top]);				
+			/*
+			printf("REDUCE -\n");		
+			printf("POP %g\n", pd->m_stack[pd->m_top]);
+			*/
 			right = pd->m_stack[(pd->m_top)--];
-			//printf("POP %g\n", pd->m_stack[pd->m_top]);			
+			/* printf("POP %g\n", pd->m_stack[pd->m_top]); */
 			pd->m_stack[pd->m_top] = pd->m_stack[pd->m_top] - right;		
-			//printf("PUSH %g\n", pd->m_stack[pd->m_top]);
+			/* printf("PUSH %g\n", pd->m_stack[pd->m_top]); */
 			break;
 		case T_MULT:
-			//printf("REDUCE *\n");		
-			//printf("POP %g\n", pd->m_stack[pd->m_top]);						
+			/*
+			printf("REDUCE *\n");		
+			printf("POP %g\n", pd->m_stack[pd->m_top]);						
+			*/
 			right = pd->m_stack[(pd->m_top)--];
-			//printf("POP %g\n", pd->m_stack[pd->m_top]);						
+			/* printf("POP %g\n", pd->m_stack[pd->m_top]); */						
 			pd->m_stack[pd->m_top] = pd->m_stack[pd->m_top] * right;		
-			//printf("PUSH %g\n", pd->m_stack[pd->m_top]);			
+			/* printf("PUSH %g\n", pd->m_stack[pd->m_top]); */			
 			break;
 		case T_DIV:
-			//printf("REDUCE /\n");		
-			//printf("POP %g\n", pd->m_stack[pd->m_top]);								
+			/*
+			printf("REDUCE /\n");		
+			printf("POP %g\n", pd->m_stack[pd->m_top]);
+			*/								
 			right = pd->m_stack[(pd->m_top)--];
 			if ( right == 0 )
 			{
 				printf("Error 8: division by 0.\n");
 				return 0;
 			}
-			//printf("POP %g\n", pd->m_stack[pd->m_top]);			
+			/* printf("POP %g\n", pd->m_stack[pd->m_top]); */			
 			pd->m_stack[pd->m_top] /= right;		
-			//printf("PUSH %g\n", pd->m_stack[pd->m_top]);
+			/* printf("PUSH %g\n", pd->m_stack[pd->m_top]); */
 			break;
 		case T_UMINUS:
-			//printf("REDUCE unary minus\n");		
-			//printf("POP %g\n", pd->m_stack[pd->m_top]);										
+			/*
+			printf("REDUCE unary minus\n");		
+			printf("POP %g\n", pd->m_stack[pd->m_top]);										
+			*/
 			pd->m_stack[pd->m_top] *= -1;
-			//printf("PUSH %g\n", pd->m_stack[pd->m_top]);			
+			/* printf("PUSH %g\n", pd->m_stack[pd->m_top]); */
 			break;
 		case T_EXP:
-			//printf("REDUCE ^\n");		
-			//printf("POP %g\n", pd->m_stack[pd->m_top]);								
+			/*
+			printf("REDUCE ^\n");		
+			printf("POP %g\n", pd->m_stack[pd->m_top]);
+			*/
 			right = pd->m_stack[(pd->m_top)--];
-			//printf("POP %g\n", pd->m_stack[pd->m_top]);
+			/* printf("POP %g\n", pd->m_stack[pd->m_top]); */
 			pd->m_stack[pd->m_top] = pow(pd->m_stack[pd->m_top], right);
-			//printf("PUSH %g\n", pd->m_stack[pd->m_top]);			
+			/* printf("PUSH %g\n", pd->m_stack[pd->m_top]); */
 			break;
 		case T_OPAREN:
-			//printf("REDUCE (\n");
+			/* printf("REDUCE (\n"); */
 			if ( pd->m_Token.Type == T_CPAREN )
 			{
-				//printf("EAT %s\n", pd->m_Token.str);
+				/* printf("EAT %s\n", pd->m_Token.str); */
 				GetNextToken(pd->m_strExpr, &(pd->m_Token));
 			}
 			break;			
 		case T_CPAREN:
-			//printf("REDUCE )\n");
+			/* printf("REDUCE )\n"); */
 			break;						
 		default:
 			printf("Error 9: %s %d\n", pd->m_Token.str, pd->m_stackOpr[pd->m_topOpr]);
@@ -187,7 +199,7 @@ int Parse(const char *strExpr, double *dblRet)
 	md.m_value = 0;	
 	md.m_topOpr = 0;
 	md.m_stackOpr[0] = T_EOL;
-	//printf("SHIFT $\n");
+	/* printf("SHIFT $\n"); */
 
 	initToken(&(md.m_Token));
 	GetNextToken(md.m_strExpr, &(md.m_Token));
@@ -205,7 +217,7 @@ int Parse(const char *strExpr, double *dblRet)
 				return 0;			
 			case T_NUMBER:
 				md.m_stack[++md.m_top] = md.m_Token.Value;
-				//printf("PUSH %s\n", md.m_Token.str);
+				/* printf("PUSH %s\n", md.m_Token.str); */
 				GetNextToken(md.m_strExpr, &(md.m_Token));
 				break;
 			case T_UPLUS:
@@ -235,7 +247,7 @@ int Parse(const char *strExpr, double *dblRet)
 						}						
 						md.m_value = md.m_stack[(md.m_top)--];
 						*dblRet = md.m_value;
-						printf("ACCEPT: %g\n", *dblRet);
+						/* printf("ACCEPT: %g\n", *dblRet); */
 						return 1;
 					case E1:
 						printf("Error 1: missing right parenthesis\n");

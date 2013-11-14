@@ -56,4 +56,4 @@ int reduce(ParserData *pd);
 
 int Parse(const char *strExpr, double *dblRet);
 
-#endif // PARSER_H
+#endif /* PARSER_H */
